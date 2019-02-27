@@ -2,20 +2,32 @@ from tempfile import NamedTemporaryFile
 
 import numpy as np
 
-from binary_fractions import bin_to_dec, dec_to_bin
+from binary_fractions import BinaryFraction, bin_frac_to_dec, dec_to_bin_frac
 from language_models import get_frequency_distribution
 
 
-def test_bin_to_dec():
+def test_bin_frac_to_dec():
 
-    test_string = "0b.011"
-    assert 1 / 4 + 1 / 8 == bin_to_dec(test_string)
+    test_bin_frac = BinaryFraction(int('0b011', 2), 2)
+
+    expected = 1 / 4 + 1 / 8
+
+    assert bin_frac_to_dec(test_bin_frac) == expected
+
+    test_bin_frac = BinaryFraction(int("0b1000010001", 2), 9)
+
+    expected = 1 / 2 + 1 / 64 + 1 / 1024
+
+    assert bin_frac_to_dec(test_bin_frac) == expected
 
 
-def test_dec_to_bin():
+def test_dec_to_bin_frac():
 
     test_float = 1 / 2 + 1 / 64 + 1 / 1024
-    assert "0b.1000010001" == dec_to_bin(test_float)
+
+    expected = BinaryFraction(int("0b1000010001", 2), 9)
+
+    assert dec_to_bin_frac(test_float) == expected
 
 
 def test_get_frequency_distribution():

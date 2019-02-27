@@ -7,14 +7,30 @@ import re
 
 import numpy as np
 
+class BinaryFraction:
+    def __init__(self, i=0, msb=0):
+        self.i = i
+        self.msb = msb
 
-def bin_to_dec(bin_string):
-    pattern = r"0b.[01]*"
-    assert re.fullmatch(
-        pattern, bin_string
-    ), f"Binary string {bin_string} does not match {pattern}."
+    def __eq__(self, other):
+        return (type(self) == type(other)) and (self.i == other.i) and (self.msb == other.msb)
 
-    bin_string = bin_string[3:]
+    def __repr__(self):
+        return f"BinaryFraction({self.i}, {self.msb})"
+
+    def __str__(self):
+        print_str = f"""
+        BinaryFraction
+            base_10_int = {self.i}
+            bin =         {bin(self.i)}
+            msb =         {self.msb}
+            bin_frac =    {'.' + bin(self.i)[2:].rjust(self.msb, '0')}
+            """
+
+        print(print_str)
+
+def bin_frac_to_dec(bin_frac):
+    bin_string = bin(bin_frac.i)[2:].rjust(bin_frac.msb + 1, '0')
 
     dec = 0.0
 
@@ -24,32 +40,22 @@ def bin_to_dec(bin_string):
     return dec
 
 
-def dec_to_bin(dec):
+def dec_to_bin_frac(dec):
     assert 0.0 < dec < 1.0
 
-    bin_string = "0b."
+    bin_frac = BinaryFraction()
 
-    i = 1
+    i = 0
     while not (np.isclose(dec, 0.0)):
-
-        power = 1 / 2 ** i
-        if dec >= power:
-            next_char = "1"
-            dec -= power
-
-        else:
-            next_char = "0"
-
-        bin_string += next_char
         i += 1
 
-    return bin_string
+        power = 1 / 2 ** i
+        bin_frac.i = bin_frac.i << 1
 
+        if dec >= power:
+            dec -= power
+            bin_frac.i += 1
 
-def main():
-    bin_to_dec("0b.10")
-    dec_to_bin(1 / 2 + 1 / 64 + 1 / 1024)
+    bin_frac.msb = i - 1
 
-
-if __name__ == "__main__":
-    main()
+    return bin_frac
