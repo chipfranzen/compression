@@ -1,8 +1,10 @@
 from collections import OrderedDict
+from copy import deepcopy
 from tempfile import NamedTemporaryFile
 
 import numpy as np
 
+from arithmetic_coding import add_eof_to_freq_dist
 from binary_fractions import BinaryFraction, bin_frac_to_dec, dec_to_bin_frac
 from language_models import get_frequency_distribution
 
@@ -65,3 +67,25 @@ def test_get_frequency_distribution():
     assert freq_dist == expected
 
     assert np.isclose(1, sum(freq_dist.values()))
+
+def test_add_eof_to_freq_dist():
+    test_string = "aaab"
+
+    with NamedTemporaryFile(mode="w+") as tmp:
+        tmp.write(test_string)
+        tmp.flush()
+
+        freq_dist = get_frequency_distribution(tmp.name)
+
+    updated = add_eof_to_freq_dist(deepcopy(freq_dist))
+    assert np.isclose(sum(updated.values()), 1.)
+
+    original_sorted_items = sorted(freq_dist.items(), key=lambda x: x[1])
+    original_sorted_keys = [x[0] for x in original_sorted_items]
+
+    new_sorted_items = sorted(updated.items(), key=lambda x: x[1])
+    new_sorted_keys = [x[0] for x in new_sorted_items]
+
+    assert new_sorted_keys[0] == ''
+
+    assert new_sorted_keys[1:] == original_sorted_keys
