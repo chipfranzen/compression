@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from tempfile import NamedTemporaryFile
 
 import numpy as np
@@ -39,25 +40,27 @@ def test_get_frequency_distribution():
 
         freq_dist = get_frequency_distribution(tmp.name)
 
-    expected = {
-        "∂": 1 / n_symbols,
-        "e": 5 / n_symbols,
-        "a": 2 / n_symbols,
-        "t": 2 / n_symbols,
-        "h": 1 / n_symbols,
-        " ": 3 / n_symbols,
-        "m": 2 / n_symbols,
-        "l": 1 / n_symbols,
-        "r": 2 / n_symbols,
-        "i": 1 / n_symbols,
-        "g": 1 / n_symbols,
-        "n": 1 / n_symbols,
-        "s": 2 / n_symbols,
-        "u": 1 / n_symbols,
-        "p": 1 / n_symbols,
-        "!": 1 / n_symbols,
-        "\n": 1 / n_symbols,
-    }
+    expected = OrderedDict(
+        {
+            "∂": 1 / n_symbols,
+            "e": 5 / n_symbols,
+            "a": 2 / n_symbols,
+            "t": 2 / n_symbols,
+            "h": 1 / n_symbols,
+            " ": 3 / n_symbols,
+            "m": 2 / n_symbols,
+            "l": 1 / n_symbols,
+            "r": 2 / n_symbols,
+            "i": 1 / n_symbols,
+            "g": 1 / n_symbols,
+            "n": 1 / n_symbols,
+            "s": 2 / n_symbols,
+            "u": 1 / n_symbols,
+            "p": 1 / n_symbols,
+            "!": 1 / n_symbols,
+            "\n": 1 / n_symbols,
+        }
+    )
 
     assert freq_dist == expected
 
