@@ -1,11 +1,13 @@
 """
 Utils for working with binary fractions.
-Binary fractions are represented as strings of the form "0b.000"
+Binary fractions are represented as tuples of integers. The first stores the binary fraction. The
+second store the most significant bit. 
 """
 
 import re
 
 import numpy as np
+
 
 class BinaryFraction:
     def __init__(self, i=0, msb=0):
@@ -13,7 +15,11 @@ class BinaryFraction:
         self.msb = msb
 
     def __eq__(self, other):
-        return (type(self) == type(other)) and (self.i == other.i) and (self.msb == other.msb)
+        return (
+            (type(self) == type(other))
+            and (self.i == other.i)
+            and (self.msb == other.msb)
+        )
 
     def __repr__(self):
         return f"BinaryFraction({self.i}, {self.msb})"
@@ -29,8 +35,9 @@ class BinaryFraction:
 
         print(print_str)
 
+
 def bin_frac_to_dec(bin_frac):
-    bin_string = bin(bin_frac.i)[2:].rjust(bin_frac.msb + 1, '0')
+    bin_string = bin(bin_frac.i)[2:].rjust(bin_frac.msb + 1, "0")
 
     dec = 0.0
 

@@ -8,7 +8,7 @@ from language_models import get_frequency_distribution
 
 def test_bin_frac_to_dec():
 
-    test_bin_frac = BinaryFraction(int('0b011', 2), 2)
+    test_bin_frac = BinaryFraction(int("0b011", 2), 2)
 
     expected = 1 / 4 + 1 / 8
 
