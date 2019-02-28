@@ -25,7 +25,7 @@ class BinaryFraction:
         return f"BinaryFraction({self.i}, {self.msb})"
 
     def __str__(self):
-        print_str = f"""
+        return f"""
         BinaryFraction
             base_10_int = {self.i}
             bin =         {bin(self.i)}
@@ -33,10 +33,24 @@ class BinaryFraction:
             bin_frac =    {'.' + bin(self.i)[2:].rjust(self.msb, '0')}
             """
 
-        print(print_str)
+    def get_msb(self):
+        return bin(self.i)[2:].rjust(self.msb, "0")[0]
+
+    def msb_check(self, other):
+        return self.get_msb() == other.get_msb()
+
+    def pop_msb(self, upper):
+        popped_msb = self.get_msb()
+        if popped_msb == "1":
+            self.i -= 2 ** (self.msb + 1)
+        self.i = self.i << 1
+        if upper:
+            self.i += 1
+        return popped_msb
 
 
 def bin_frac_to_dec(bin_frac):
+    assert bin_frac.i >= 0
     bin_string = bin(bin_frac.i)[2:].rjust(bin_frac.msb + 1, "0")
 
     dec = 0.0
@@ -48,13 +62,16 @@ def bin_frac_to_dec(bin_frac):
 
 
 def dec_to_bin_frac(dec):
-    assert 0.0 < dec < 1.0
+    assert 0.0 <= dec <= 1.0
 
     bin_frac = BinaryFraction()
+    if np.isclose(dec, 0.0):
+        return bin_frac
+    elif np.isclose(dec, 1.0):
+        return BinaryFraction(1)
 
     i = 0
     while not (np.isclose(dec, 0.0)):
-        i += 1
 
         power = 1 / 2 ** i
         bin_frac.i = bin_frac.i << 1
@@ -62,6 +79,8 @@ def dec_to_bin_frac(dec):
         if dec >= power:
             dec -= power
             bin_frac.i += 1
+
+        i += 1
 
     bin_frac.msb = i - 1
 

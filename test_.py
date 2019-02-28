@@ -28,7 +28,7 @@ def test_dec_to_bin_frac():
 
     test_float = 1 / 2 + 1 / 64 + 1 / 1024
 
-    expected = BinaryFraction(int("0b1000010001", 2), 9)
+    expected = BinaryFraction(int("0b01000010001", 2), 10)
 
     assert dec_to_bin_frac(test_float) == expected
 
@@ -68,6 +68,7 @@ def test_get_frequency_distribution():
 
     assert np.isclose(1, sum(freq_dist.values()))
 
+
 def test_add_eof_to_freq_dist():
     test_string = "aaab"
 
@@ -78,7 +79,7 @@ def test_add_eof_to_freq_dist():
         freq_dist = get_frequency_distribution(tmp.name)
 
     updated = add_eof_to_freq_dist(deepcopy(freq_dist))
-    assert np.isclose(sum(updated.values()), 1.)
+    assert np.isclose(sum(updated.values()), 1.0)
 
     original_sorted_items = sorted(freq_dist.items(), key=lambda x: x[1])
     original_sorted_keys = [x[0] for x in original_sorted_items]
@@ -86,6 +87,6 @@ def test_add_eof_to_freq_dist():
     new_sorted_items = sorted(updated.items(), key=lambda x: x[1])
     new_sorted_keys = [x[0] for x in new_sorted_items]
 
-    assert new_sorted_keys[0] == ''
+    assert new_sorted_keys[0] == ""
 
     assert new_sorted_keys[1:] == original_sorted_keys
