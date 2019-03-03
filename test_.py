@@ -4,33 +4,158 @@ from tempfile import NamedTemporaryFile
 
 import numpy as np
 
-from arithmetic_coding import add_eof_to_freq_dist
-from binary_fractions import BinaryFraction, bin_frac_to_dec, dec_to_bin_frac
-from language_models import get_frequency_distribution
+from binary_fractions import BinaryFraction
+from language_models import add_eof_to_freq_dist, get_frequency_distribution
 
 
-def test_bin_frac_to_dec():
-
-    test_bin_frac = BinaryFraction(int("0b011", 2), 2)
-
-    expected = 1 / 4 + 1 / 8
-
-    assert bin_frac_to_dec(test_bin_frac) == expected
-
-    test_bin_frac = BinaryFraction(int("0b1000010001", 2), 9)
-
-    expected = 1 / 2 + 1 / 64 + 1 / 1024
-
-    assert bin_frac_to_dec(test_bin_frac) == expected
-
-
-def test_dec_to_bin_frac():
+def test_BinaryFraction__init__():
+    test_float = 1 / 4 + 1 / 8
+    test_bin_frac = BinaryFraction(test_float)
+    assert test_bin_frac.i == int("0b011", 2)
+    assert test_bin_frac.msb == 3
 
     test_float = 1 / 2 + 1 / 64 + 1 / 1024
+    test_bin_frac = BinaryFraction(test_float)
+    assert test_bin_frac.i == int("0b1000010001", 2)
+    assert test_bin_frac.msb == 10
+    
+    test_float = 0.0
+    test_bin_frac = BinaryFraction(test_float)
+    assert test_bin_frac.i == int("0b0", 2)
+    assert test_bin_frac.msb == 0
 
-    expected = BinaryFraction(int("0b01000010001", 2), 10)
+    test_float = 1.0
+    test_bin_frac = BinaryFraction(test_float)
+    assert test_bin_frac.i == int("0b1", 2)
+    assert test_bin_frac.msb == 0
 
-    assert dec_to_bin_frac(test_float) == expected
+
+def test_BinaryFraction_to_float():
+    expected = 1 / 4 + 1 / 8
+    test_bin_frac = BinaryFraction(expected)
+    assert np.isclose(test_bin_frac.to_float(), expected)
+
+    expected = 1 / 2 + 1 / 64 + 1 / 1024
+    test_bin_frac = BinaryFraction(expected)
+    assert np.isclose(test_bin_frac.to_float(), expected)
+
+    expected = 0.0
+    test_bin_frac = BinaryFraction(expected)
+    assert np.isclose(test_bin_frac.to_float(), expected)
+
+    expected = 1.0
+    test_bin_frac = BinaryFraction(expected)
+    assert np.isclose(test_bin_frac.to_float(), expected)
+
+    expected = .23874
+    test_bin_frac = BinaryFraction(expected)
+    assert np.isclose(test_bin_frac.to_float(), expected)
+
+
+def test_BinaryFraction__eq__():
+    x = BinaryFraction(.123)
+    y = BinaryFraction(.123)
+    z = BinaryFraction(.234)
+    
+    assert x == y
+    assert x != z
+    assert x == .123
+    assert x != .234
+    assert x != 10
+
+
+def test_BinaryFraction_get_bin_string():
+    test_float = 1.0
+    test_bin_frac = BinaryFraction(test_float)
+    expected = '1'
+    assert test_bin_frac.get_bin_string() == expected
+
+    test_float = 0.0
+    test_bin_frac = BinaryFraction(test_float)
+    expected = '0'
+    assert test_bin_frac.get_bin_string() == expected
+
+    test_float = 1/2
+    test_bin_frac = BinaryFraction(test_float)
+    expected = '01'
+    assert test_bin_frac.get_bin_string() == expected
+
+    test_float = 1/4 + 1/16
+    test_bin_frac = BinaryFraction(test_float)
+    expected = '00101'
+    assert test_bin_frac.get_bin_string() == expected
+
+
+def test_BinaryFraction_get_msb():
+    test_bin_frac = BinaryFraction(1.0)
+    expected = '1'
+    assert test_bin_frac.get_msb() == expected
+
+    test_bin_frac = BinaryFraction(0.0)
+    expected = '0'
+    assert test_bin_frac.get_msb() == expected
+
+    test_float = 1/2
+    test_bin_frac = BinaryFraction(test_float)
+    expected = '1'
+    assert test_bin_frac.get_msb() == expected
+
+    test_float = 1/4 + 1/8
+    test_bin_frac = BinaryFraction(test_float)
+    expected = '0'
+    assert test_bin_frac.get_msb() == expected
+
+    test_float = 1 / 2 + 1 / 64 + 1 / 1024
+    test_bin_frac = BinaryFraction(test_float)
+    expected = '1'
+    assert test_bin_frac.get_msb() == expected
+
+
+def test_BinaryFraction_msb_check():
+    x = BinaryFraction(1.)
+    y = BinaryFraction(0.)
+    z = BinaryFraction(1 / 2)
+    a = BinaryFraction(1 / 4)
+
+    assert x.msb_check(z)
+    assert y.msb_check(a)
+
+    assert not x.msb_check(a)
+    assert not y.msb_check(z)
+
+
+def test_BinaryFraction_pop_msb():
+    test_float = 1/2
+    test_bin_frac = BinaryFraction(test_float)
+    expected_msb = '1'
+    expected_new_bin_frac = BinaryFraction(0.0)
+    popped_msb, test_bin_frac = test_bin_frac.pop_msb(False)
+    assert popped_msb == expected_msb
+    assert test_bin_frac == expected_new_bin_frac
+
+    test_float = 1/4
+    test_bin_frac = BinaryFraction(test_float)
+    expected_msb = '0'
+    expected_new_bin_frac = BinaryFraction(1 / 2)
+    popped_msb, test_bin_frac = test_bin_frac.pop_msb(False)
+    assert popped_msb == expected_msb
+    assert test_bin_frac == expected_new_bin_frac
+
+    test_float = 1/4
+    test_bin_frac = BinaryFraction(test_float)
+    expected_msb = '0'
+    expected_new_bin_frac = BinaryFraction(1 / 2 + 1 / 4)
+    popped_msb, test_bin_frac = test_bin_frac.pop_msb(True)
+    assert popped_msb == expected_msb
+    assert test_bin_frac == expected_new_bin_frac
+
+    test_float = 1/2 + 1/4 + 1/16
+    test_bin_frac = BinaryFraction(test_float)
+    expected_msb = '1'
+    expected_new_bin_frac = BinaryFraction(1 / 2 + 1 / 8 + 1/16)
+    popped_msb, test_bin_frac = test_bin_frac.pop_msb(True)
+    assert popped_msb == expected_msb
+    assert test_bin_frac == expected_new_bin_frac
 
 
 def test_get_frequency_distribution():
