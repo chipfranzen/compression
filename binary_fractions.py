@@ -7,7 +7,7 @@ import numpy as np
 
 
 class BinaryFraction:
-    def __init__(self, x: float = 0.):
+    def __init__(self, x: float = 0.0):
         self.decimal = x
 
         assert 0.0 <= x <= 1.0, "Input must be in (0, 1)."
@@ -44,7 +44,15 @@ class BinaryFraction:
                 other = float(other)
                 return np.isclose(self.to_float(), other)
             except ValueError:
-                raise ValueError(f"Could not convert {type(other)} to float for comparison with BinaryFraction: {repr(other)}")
+                raise ValueError(
+                    f"Could not convert {type(other)} to float for comparison with BinaryFraction: {repr(other)}"
+                )
+
+    def __lt__(self, other):
+        return self.to_float() < other.to_float()
+
+    def __gt__(self, other):
+        return self.to_float() > other.to_float()
 
     def __repr__(self):
         return f"BinaryFraction({self.decimal})"
@@ -58,14 +66,24 @@ class BinaryFraction:
             bin_frac =    {self.get_bin_string()}
             decimal  =    {self.decimal}
             """
+
+    @classmethod
+    def bin_string_to_float(cls, bin_string):
+        dec = 0.0
+
+        for i, e in enumerate(bin_string):
+            dec += int(e) * 1 / 2 ** (i)
+
+        return dec
+
     def get_bin_string(self):
         return bin(self.i)[2:].rjust(self.msb + 1, "0")
 
     def get_msb(self):
-        if np.isclose(self.decimal, 1.):
-            return '1'
-        if np.isclose(self.decimal, 0.):
-            return '0'
+        if np.isclose(self.decimal, 1.0):
+            return "1"
+        if np.isclose(self.decimal, 0.0):
+            return "0"
         else:
             bin_string = self.get_bin_string()
             return bin_string[1]
@@ -75,10 +93,10 @@ class BinaryFraction:
 
     def pop_msb(self, upper):
         if np.isclose(self.decimal, 1.0):
-            return '1'
+            return "1"
 
         elif np.isclose(self.decimal, 0.0):
-            return '0'
+            return "0"
 
         else:
             popped_msb = self.get_msb()
@@ -95,13 +113,37 @@ class BinaryFraction:
 
             return popped_msb, BinaryFraction(self.decimal)
 
+    @classmethod
+    def shortest_bin_in_interval(cls, lower, upper):
+        assert lower < upper, "Lower must be < upper."
+
+        lower = lower.get_bin_string()
+        upper = upper.get_bin_string()
+
+        out = ""
+        len_l = len(lower)
+        len_u = len(upper)
+        max_len = max(len_l, len_u)
+
+        lower = lower.ljust(max_len, "0")
+        upper = upper.ljust(max_len, "0")
+
+        for i in range(max_len):
+            if lower[i] == upper[i]:
+                out += lower[i]
+            else:
+                out += "0"
+                for j in range(i, max_len):
+                    if lower[j] == "1":
+                        out += "1"
+                    else:
+                        out += "1"
+                        return out[1:]
+                if lower[-1] == "1":
+                    out += "1"
+
+        return out[1:]
+
     def to_float(self):
-        assert self.i >= 0
-        bin_string = bin(self.i)[2:].rjust(self.msb + 1, "0")
-
-        dec = 0.0
-
-        for i, e in enumerate(bin_string):
-            dec += int(e) * 1 / 2 ** (i)
-
-        return dec
+        bin_string = self.get_bin_string()
+        return self.__class__.bin_string_to_float(bin_string)
