@@ -86,27 +86,27 @@ class BinaryFraction:
 
     def get_msb(self):
         if np.isclose(self.decimal, 1.0):
-            return "1"
+            return 1
         if np.isclose(self.decimal, 0.0):
-            return "0"
+            return 0
         else:
             bin_string = self.get_bin_string()
-            return bin_string[1]
+            return int(bin_string[1])
 
     def msb_check(self, other):
         return self.get_msb() == other.get_msb()
 
     def pop_msb(self, upper):
         if np.isclose(self.decimal, 1.0):
-            return "1"
+            return 1
 
         elif np.isclose(self.decimal, 0.0):
-            return "0"
+            return 0
 
         else:
             popped_msb = self.get_msb()
 
-            if popped_msb == "1":
+            if popped_msb == 1:
                 self.i -= 2 ** (self.msb - 1)
 
             self.i = self.i << 1

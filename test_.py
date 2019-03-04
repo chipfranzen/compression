@@ -88,26 +88,26 @@ def test_BinaryFraction_get_bin_string():
 
 def test_BinaryFraction_get_msb():
     test_bin_frac = BinaryFraction(1.0)
-    expected = "1"
+    expected = 1
     assert test_bin_frac.get_msb() == expected
 
     test_bin_frac = BinaryFraction(0.0)
-    expected = "0"
+    expected = 0
     assert test_bin_frac.get_msb() == expected
 
     test_float = 1 / 2
     test_bin_frac = BinaryFraction(test_float)
-    expected = "1"
+    expected = 1
     assert test_bin_frac.get_msb() == expected
 
     test_float = 1 / 4 + 1 / 8
     test_bin_frac = BinaryFraction(test_float)
-    expected = "0"
+    expected = 0
     assert test_bin_frac.get_msb() == expected
 
     test_float = 1 / 2 + 1 / 64 + 1 / 1024
     test_bin_frac = BinaryFraction(test_float)
-    expected = "1"
+    expected = 1
     assert test_bin_frac.get_msb() == expected
 
 
@@ -127,7 +127,7 @@ def test_BinaryFraction_msb_check():
 def test_BinaryFraction_pop_msb():
     test_float = 1 / 2
     test_bin_frac = BinaryFraction(test_float)
-    expected_msb = "1"
+    expected_msb = 1
     expected_new_bin_frac = BinaryFraction(0.0)
     popped_msb, test_bin_frac = test_bin_frac.pop_msb(False)
     assert popped_msb == expected_msb
@@ -135,7 +135,7 @@ def test_BinaryFraction_pop_msb():
 
     test_float = 1 / 4
     test_bin_frac = BinaryFraction(test_float)
-    expected_msb = "0"
+    expected_msb = 0
     expected_new_bin_frac = BinaryFraction(1 / 2)
     popped_msb, test_bin_frac = test_bin_frac.pop_msb(False)
     assert popped_msb == expected_msb
@@ -143,7 +143,7 @@ def test_BinaryFraction_pop_msb():
 
     test_float = 1 / 4
     test_bin_frac = BinaryFraction(test_float)
-    expected_msb = "0"
+    expected_msb = 0
     expected_new_bin_frac = BinaryFraction(1 / 2 + 1 / 4)
     popped_msb, test_bin_frac = test_bin_frac.pop_msb(True)
     assert popped_msb == expected_msb
@@ -151,7 +151,7 @@ def test_BinaryFraction_pop_msb():
 
     test_float = 1 / 2 + 1 / 4 + 1 / 16
     test_bin_frac = BinaryFraction(test_float)
-    expected_msb = "1"
+    expected_msb = 1
     expected_new_bin_frac = BinaryFraction(1 / 2 + 1 / 8 + 1 / 16)
     popped_msb, test_bin_frac = test_bin_frac.pop_msb(True)
     assert popped_msb == expected_msb

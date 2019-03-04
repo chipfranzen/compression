@@ -25,6 +25,7 @@ def get_frequency_distribution(filepath):
         freq_dict = OrderedDict(Counter(f.read()))
 
     n_symbols = sum(freq_dict.values())
-    freq_dist = {k: v / n_symbols for k, v in freq_dict.items() if k != "\n"}
+    print(f"{n_symbols} chars in src.")
+    freq_dist = {k: v / n_symbols for k, v in freq_dict.items()}
 
     return freq_dist
