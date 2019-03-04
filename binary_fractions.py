@@ -1,6 +1,6 @@
 """
 Binary fractions are represented as tuples of integers. The first stores the binary fraction. The
-second store the most significant bit. 
+second store the most significant bit.
 """
 
 import numpy as np
@@ -45,7 +45,12 @@ class BinaryFraction:
                 return np.isclose(self.to_float(), other)
             except ValueError:
                 raise ValueError(
-                    f"Could not convert {type(other)} to float for comparison with BinaryFraction: {repr(other)}"
+                    " ".join(
+                        [
+                            f"Could not convert {type(other)} to float for comparison with",
+                            f" BinaryFraction: {repr(other)}",
+                        ]
+                    )
                 )
 
     def __lt__(self, other):
