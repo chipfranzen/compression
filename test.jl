@@ -1,7 +1,7 @@
 using Test
 
 include("ArithmeticCoding.jl")
-using Main.BinaryFractions
+using Main.BinaryFractions: binaryfraction, tobitstring, nbits, tofloat, getbit, BinaryFractions, shortestbetween, bitvector
 
 @testset "tobitstring" begin
     b = "1"
@@ -123,5 +123,14 @@ end
     expected = d1 < d2
     actual = bf1 < bf2
     @test actual == expected
+
+@testset "shortestbetween" begin
+    x = UInt32(0b11011011)
+    y = UInt32(0b11010011)
+    z = UInt32(0b11010100)
+    expected = bitvector(z)
+    actual = shortestbetween(x, y)
+    @test expected == actual
+end
 
 end
