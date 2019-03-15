@@ -1,3 +1,5 @@
+module ArithmeticCoding
+
 module BinaryFractions
 
 BinaryFraction = UInt32
@@ -60,33 +62,39 @@ function popmsb(bf::BinaryFraction, isupper::Bool=false)
     msb, bf
 end
 
-function shortestbetween(bf1::BinaryFraction, bf2::BinaryFraction)
-    if bf1 == bf2
-        return bitvector(bf1)
+function shortestbetween(lower::BinaryFraction, upper::BinaryFraction)
+    if lower == upper
+        return bitvector(lower)
+    end
 
-    bv1 = bitvector(bf1)
-    bv2 = bitvector(bf2)
+    lower_bv = bitvector(lower)
+    upper_bv = bitvector(upper)
 
     result = BitVector(zeros(Bool, nbits))
 
     i = 1
 
-    while bv1[i] == bv2[i]
-        result[i] = bv1[i]
+    while lower_bv[i] == upper_bv[i]
+        result[i] = lower_bv[i]
         i += 1
     end
 
-    result[i: i+1] = [0, 1]
+    result[i] = 0
+    i += 1
+
+    while lower_bv[i] == 1
+        result[i] = 1
+        i += 1
+    end
+    result[i] = 1
     result
 end
 
 end
 
-module FrequencyDistributions
-using Distributions
+module SymbolDistributions
 
-StringOrChar = Union{String, Char}
-CharMap = Dict{StringOrChar, Integer}
+CharMap = Dict{Char, Integer}
 PVector = Vector{T} where T <: AbstractFloat
 Interval = Tuple{T, T} where T <: AbstractFloat
 IntervalVector = Vector{Interval}
@@ -98,7 +106,9 @@ struct SymbolDistribution
 
     function SymbolDistribution(symbols, p, intervals)
         all(0 .>= p) || error("Elements of p must be positive.")
+
         0 <= sum(p) <= 1 || error("Sum of p must be in (0, 1).")
+
         new(vaues, p, intervals)
     end
 
@@ -111,12 +121,69 @@ struct SymbolDistribution
             append!(x, [next_interval])
         end
 
-        intervals = intervals[2:] # remove init
+        intervals = intervals[2:length(intervals)] # remove init
 
         new(symbols, p, intervals)
     end
+end
 
-function symboldistribution(symbols::Vector{StringOrChar}, p::PVector)
-    charmap = Dict(enumerate(symbols))
+function SymbolDistribution(symbols::Vector{Char}, p::PVector)
+    nsymbols = length(symbols)
+    charmap = Dict(zip(symbols, 1:nsymbols))
     SymbolDistribution(charmap, p)
+end
+
+function getp(sd::SymbolDistribution, k::Char)
+    # Gets the probability of a character.
+    ix = sd.symbols[k]
+    sd.p[ix]
+end
+
+function getinterval(sd::SymbolDistribution, k::Char)
+    # Gets the interval for a character.
+    ix = sd.symbols[k]
+    sd.intervals[ix]
+end
+
+end
+
+using .BinaryFractions: tofloat, binaryfraction, shortestbetween, zero_bf, one_bf
+using .SymbolDistributions: SymbolDistribution, getinterval
+
+function BitVector(s::String)
+    charmap = Dict([('0', false), ('1', true)])
+    BitVector = [charmap[c] for c in s]
+end
+
+function encode(s::String, sd::SymbolDistribution)
+    upper = one_bf
+    lower = zero_bf
+    i = 1
+
+    for c in s
+        println(i)
+        interval = getinterval(sd, c)
+        current_range = upper - lower
+
+        upper_f = tofloat(upper)
+        lower_f = tofloat(lower)
+        current_range_f = tofloat(current_range)
+        println(lower_f)
+        println(upper_f)
+        println(current_range_f)
+
+        upper_f = lower_f + current_range_f * interval[2]
+        lower_f = lower_f + current_range_f * interval[1]
+
+        upper = binaryfraction(upper_f)
+        lower = binaryfraction(lower_f)
+        i += 1
+    end
+
+    println(tofloat(upper))
+    println(tofloat(lower))
+
+    shortestbetween(lower, upper)
+end
+
 end
