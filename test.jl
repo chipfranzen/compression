@@ -4,19 +4,19 @@ include("ArithmeticCoding.jl")
 
 using Main.ArithmeticCoding: encode, BitVector
 
-using Main.ArithmeticCoding.BinaryFractions: binaryfraction, tobitstring, nbits, tofloat, getbit, BinaryFractions, shortestbetween, bitvector
+using Main.ArithmeticCoding.BinaryFractions: binaryfraction, tobitstring, nbits, tofloat, getbit, BinaryFraction, shortestbetween, bitvector
 
 using Main.ArithmeticCoding.SymbolDistributions: SymbolDistribution, getp, getinterval
 
 @testset "tobitstring" begin
     b = "1"
-    expected = "10000000000000000000000000000000"
+    expected = "1" * repeat("0", nbits - 1)
     actual = tobitstring(b)
     @test length(actual) == nbits
     @test expected == actual
 
     b = "010010"
-    expected = "01001000000000000000000000000000"
+    expected = "010010" * repeat("0", nbits - 6)
     actual = tobitstring(b)
     @test length(actual) == nbits
     @test expected == actual
@@ -35,8 +35,8 @@ end
     actual = bitstring(binaryfraction(d))
     @test expected == actual
 
-    d = 1/32 + 1/1024
-    expansion = "0000100001"
+    d = 1/32 + 1/64
+    expansion = "000011"
     expected = tobitstring(expansion)
     actual = bitstring(binaryfraction(d))
     @test expected == actual
@@ -75,6 +75,22 @@ end
     bit = 2
     expected = false
     actual = getbit(bf, bit)
+    @test expected == actual
+end
+
+@testset "shortestbetween" begin
+    upper = BinaryFraction(0b110)
+    lower = BinaryFraction(0b010)
+    short = BinaryFraction(0b011)
+    expected = bitvector(short)
+    actual = shortestbetween(lower, upper)
+    @test expected == actual
+
+    upper = BinaryFraction(0b1100)
+    lower = BinaryFraction(0b1010)
+    short = BinaryFraction(0b1011)
+    expected = bitvector(short)
+    actual = shortestbetween(lower, upper)
     @test expected == actual
 end
 
@@ -130,22 +146,6 @@ end
     @test actual == expected
 end
 
-@testset "shortestbetween" begin
-    x = UInt32(0b110)
-    y = UInt32(0b010)
-    z = UInt32(0b011)
-    expected = bitvector(z)
-    actual = shortestbetween(x, y)
-    @test expected == actual
-
-    x = UInt32(0b1100)
-    y = UInt32(0b1010)
-    z = UInt32(0b1011)
-    expected = bitvector(z)
-    actual = shortestbetween(x, y)
-    @test expected == actual
-end
-
 @testset "SymbolDistribution" begin
     symbols = ['a', 'b', 'c']
     p = [.1, .2, .7]
@@ -164,9 +164,9 @@ end
 end
 
 @testset "encode" begin
-    s = "ab"
-    sd = SymbolDistribution(['a', 'b'], [.5, .5])
-    expected = BitVector("011")
+    s = "bbb□"
+    sd = SymbolDistribution(['a', 'b', '□'], [.4, .5, .1])
+    expected = BitVector("1101000" * repeat("0", nbits - 7))
     actual = encode(s, sd)
     @test expected == actual
 end

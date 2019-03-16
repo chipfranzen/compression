@@ -2,8 +2,21 @@ module ArithmeticCoding
 
 module BinaryFractions
 
-BinaryFraction = UInt32
-const nbits = 32
+
+const nbits = 128
+
+bf_map = Dict(
+    [
+        (8, UInt8),
+        (16, UInt16),
+        (32, UInt32),
+        (64, UInt64),
+        (128, UInt128),
+    ]
+)
+
+BinaryFraction = bf_map[nbits]
+
 const one_bf = ~BinaryFraction(0)
 const zero_bf = BinaryFraction(0)
 
@@ -26,6 +39,11 @@ end
 function tobitstring(x::String)
     x * repeat('0', nbits - length(x))
 end
+
+function tobitstring(bf::BinaryFraction)
+  join([string(Int(getbit(bf, i))) for i in 1:nbits])
+end
+
 
 function getbit(bf::BinaryFraction, bit::Int)
     bf & (BinaryFraction(1) << (nbits - bit)) != 0
@@ -147,7 +165,7 @@ end
 
 end
 
-using .BinaryFractions: tofloat, binaryfraction, shortestbetween, zero_bf, one_bf
+using .BinaryFractions: tofloat, binaryfraction, shortestbetween, zero_bf, one_bf, tobitstring
 using .SymbolDistributions: SymbolDistribution, getinterval
 
 function BitVector(s::String)
@@ -179,7 +197,10 @@ function encode(s::String, sd::SymbolDistribution)
         lower = binaryfraction(lower_f)
         i += 1
     end
+    println("End loop.")
 
+    println(tobitstring(upper))
+    println(tobitstring(lower))
     println(tofloat(upper))
     println(tofloat(lower))
 
